@@ -1,0 +1,165 @@
+{% extends 'base.html' %} {% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <header class="header">To Do List</header>
+    <div class='input-field'>
+        <input type="text" name="newTask" id="newTaskInput">
+        <button class="addNew" id= 'generateButton' onclick="sendTask()" type='generate'><i class="fas fa-plus"></i></button>
+    </div>
+        <ul id="tasks"></ul>
+        <div class="footer">
+            <span>You have completed <h id="dtaskNum"></h> of your <h id="ntaskNum"></h> tasks</span>
+            <button onclick="clearTasks()">Clear all</button>
+        </div>
+</div>
+    <script>
+        var tasksArray = {{ tasks|tojson }};
+        tasksArray.forEach(element => {
+            var ul = document.getElementById("tasks");
+            var li = document.createElement("li");
+            var close = document.createElement("span");
+            var taskText = document.createElement("span")
+            li.appendChild(taskText);
+            taskText.innerText = element[0]
+            li.onclick = function(){
+                if (li.className == 'done') {
+                    taskText.style.color = "#6CCFF6"
+                    li.className = 'ndone'
+                    $.ajax({
+                        url : '/do-task',
+                        method : 'POST',
+                        data : { taskID_py : li.id, done : 'ndone' },
+                        dataType : 'text',
+                        success : function(data) {
+                        }
+                    });
+                }
+                else {
+                    taskText.style.color = "#98CE00"
+                    li.className = 'done'
+                    $.ajax({
+                        url : '/do-task',
+                        method : 'POST',
+                        data : { taskID_py : li.id, done : 'done' },
+                        dataType : 'text',
+                        success : function(data) {
+                        }
+                    });
+                }
+                updateTasksDone()
+            }
+            li.appendChild(close);
+            li.id = element[1]
+            close.onclick = function(){
+                $.ajax({
+                    url : '/delete-task',
+                    method : 'POST',
+                    data : { taskID_py : element[1] },
+                    dataType : 'text',
+                    success : function(data) {
+                    }
+                });
+                var e = document.getElementById(element[1]);
+                e.parentNode.removeChild(e);
+            }
+            close.className = "close fas fa-trash"
+            ul.appendChild(li);
+            li.style.cursor = "pointer"
+            li.style.userSelect = "none"
+            if (element[2] == 'True') {
+                li.className = 'done'
+                taskText.style.color = "#98CE00"
+            }
+            else {
+                taskText.style.color = "#6CCFF6"
+                li.className = 'ndone'
+            }
+        });
+
+        function sendTask() {
+            const task = $('[name="newTask"]').val();
+            if(task == "") {}
+            else {
+                $.ajax({
+                    url : '/',
+                    method : 'POST',
+                    data : {task_py : task},
+                    dataType : 'text',
+                    success : function(data) {
+                    }
+                });
+                var ul = document.getElementById("tasks");
+                var li = document.createElement("li");
+                var close = document.createElement("span");
+                var taskText = document.createElement("span")
+                if (ul.hasChildNodes()) {
+                    var tempNum = parseInt(ul.lastChild.id) + 1;
+                }
+                else {
+                    var tempNum = {{ start }};
+                }
+                li.appendChild(taskText);
+                taskText.innerHTML = task
+                li.onclick = function(){
+                    if (li.className == 'done') {
+                        taskText.style.color = "#6CCFF6"
+                        li.className = 'ndone'
+                        $.ajax({
+                            url : '/do-task',
+                            method : 'POST',
+                            data : { taskID_py : li.id, done : 'ndone' },
+                            dataType : 'text',
+                            success : function(data) {
+                            }
+                        });
+                    }
+                    else {
+                        taskText.style.color = "#98CE00"
+                        li.className = 'done'
+                        $.ajax({
+                            url : '/do-task',
+                            method : 'POST',
+                            data : { taskID_py : li.id, done : 'done' },
+                            dataType : 'text',
+                            success : function(data) {
+                            }
+                        });
+                    }
+                    updateTasksDone()
+                }
+                li.appendChild(close);
+                taskText.style.color = "#6CCFF6"
+                li.style.cursor = "pointer"
+                li.style.userSelect = "none"
+                li.id = tempNum
+                li.className = 'ndone'
+                close.onclick = function(){
+                    $.ajax({
+                        url : '/delete-task',
+                        method : 'POST',
+                        data : { taskID_py : tempNum },
+                        dataType : 'text',
+                        success : function(data) {
+                        }
+                    });
+                    var e = document.getElementById(tempNum);
+                    e.parentNode.removeChild(e);
+                }
+                close.className = "close fas fa-trash"
+                ul.appendChild(li);
+            };
+            document.getElementById("newTaskInput").value = ''
+            updateTasksDone()
+
+        };
+
+        document.addEventListener('keydown', function(event) {
+            if(event.key == "Enter") {
+                sendTask()
+            }
+        });
+        
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}

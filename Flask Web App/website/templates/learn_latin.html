@@ -1,0 +1,119 @@
+{% extends 'base.html' %} {% block title %}Login{% endblock %}
+
+{% block content %}
+    <ul class="texts">
+        <li onclick="change_to_pliny()"><a>Pliny Eng</a></li>
+        <li onclick="change_to_pliny_blind()"><a>Pliny Blind</a></li>
+        <li onclick="change_to_caesar()"><a>Caesar Eng</a></li>
+        <li onclick="change_to_caesar_blind()"><a>Caesar Blind</a></li>
+    </ul>
+    <div class="wrapper latin">
+        <p id="latin-text"> ------------------- Latin Text ------------------- Press ? to see what is next
+        </p>
+    </div>
+    <div class="wrapper">
+    </div>
+    <script>
+        var pliny = `Because I trust, sir, that it is of interest to you, I report that I have sailed with all my staff to Ephesus, around Cape Malia, although I was held back by opposing winds. Now, I intend to head for my province partly in coastal boats, partly in carriages. For while the intense heat hinders my land journey, so too the northerly winds hinder my sailing. My dearest Pliny, you have done well to report. For it is of interest to me by what means you reach your province. Moreover, you have decided sensibly sometimes to use boats, sometimes to use carriages, as the places dictate. Although I experienced a very healthy/successful sailing as far as Ephesus, sir, indeed from there, after I began to travel in carriages, I was troubles by very serious heat and even little fevers and I stopped at Pergamum. When I crossed over to little coastal boats, I was again held up by opposing winds and reached Bithynia somewhat later than I had hoped, that is to say the 17th September. I cannot however complain about the delay since it fell to me to celebrate your birthday in the province, which was very auspicious. Now I am shaking loose the expenses, revenues, and debts of the state of the Prusians. From this very procedure I am learning more and more how necessary it is. For much money is being kept back for different reasons by private individuals. In addition, some is paid out to not at all legitimate payments. This, sir, I write to you at the very commencement of my governorship.`
+        var caesar = `Having considered this to be in no way a suitable place to disembark, he waited at anchor up to the 9th hour (3 pm) until the remaining ships could assemble there. Meanwhile, he called together the legates and military tribunes and revealed both what he had learned from Volusenus and what he wanted to happen. And he advised that all these things should be done by them at his signal and at the time (the order was given). When he had dismissed them he received both a favourable wind and tide at the same moment. When he had given the signal, weighed anchor, and advanced about 7 miles from that place, he drew up the ships at an open and flat beach. But the barbarians, when they had learned the plan of the Romans and had sent in advance their cavalry and the war charioteers, mostly of the sort that they were used to using in battle and following along with the rest of their forces, were (trying to) prevent our men from disembarking from the ships. There was very great difficulty for the following reasons: because of their size the boats were not able to be stationed except in deep water, the soldiers, in an unfamiliar place, with their hands impeded, and weighed down by a large and heavy burden of weapons had to, at the same time, jump down from the ships, keep their footing in the waves, and fight with the enemy. But since they (the barbarians) were either on dry land or had come out only a little into the water, had all their limbs unencumbered, and were in very familiar territory, they were throwing their weapons confidently and urging on their horses which were trained for this purpose. Our men, fearful of this situation and completely inexperienced in this type of fighting, were not showing the same eagerness and zeal which they were accustomed to show in battles on dry land. And while our men were hesitating, mostly because of the depth of the water, the man who was carrying the eagle of the tenth legion,  having called on the gods in the hope that the situation might turn out well for the legion, said 'Jump down, soldiers, unless you want to betray the eagle to the enemy. I myself at least will fulfil my duty to the republic and my commander.' When he had said this in a loud voice, he hurled himself out of the boat and began to carry the eagle against the enemy. Then our men, having encouraged each other lest they allow so great a disgrace, jumped down as one from the boat. In the same way, when the men from the nearest boats saw them, and following them, they made for the enemy. Our men, as soon as they stood on dry land, with all their men following them, made an attack on the enemy and put them to flight. But they were not able to follow them further because their cavalry had not been able to hold their course or reach the island. Caesar lacked this one thing which contrasted with his previous good fortune.`
+        var pliny_lat = ``
+        var caesar_lat = ``
+        var current_char = 0
+        var current_text = ""
+        var current_doing = ""
+        var blind_so_far = ""
+        var irrelevant = [",",".",";","(",")","'",'"',":"]
+
+        function change_to_pliny() {
+            current_text = pliny
+            document.getElementById("latin-text").textContent = current_text
+            current_doing = "pliny"
+            }
+
+        function change_to_caesar() {
+            current_text = caesar
+            document.getElementById("latin-text").textContent = current_text
+            current_doing = "caesar"
+        }
+
+        function change_to_pliny_blind() {
+            current_text = pliny.substring(1)
+            document.getElementById("latin-text").textContent = pliny.charAt(0)
+            blind_so_far = pliny.charAt(0)
+            current_doing = "pliny_blind"
+        }
+
+        function change_to_caesar_blind() {
+            current_text = caesar.substring(1)
+            document.getElementById("latin-text").textContent = caesar.charAt(0)
+            blind_so_far = caesar.charAt(0)
+            current_doing = "caesar_blind"
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (current_doing == "pliny_blind" || current_doing == "caesar_blind") {
+                if (event.key == "?") {
+                    blind_so_far += current_text.split(".")[0] + "."
+                    if (current_doing = "pliny_blind") {
+                        setTimeout(() => { change_to_pliny_blind(); }, 3000);
+                    }
+                    else {
+                        setTimeout(() => { change_to_caesar_blind(); }, 3000);
+                    }
+                    document.getElementById("latin-text").textContent = blind_so_far
+                }
+                else if (event.key == current_text.charAt(0)) {
+                    if (event.key == " ") {
+                        blind_so_far += " "
+                    }
+                    else {
+                        blind_so_far += current_text.charAt(0)
+                    }
+                    current_text = current_text.substring(1)
+                    current_char += 1
+                    document.getElementById("latin-text").textContent = blind_so_far
+                }
+                else if (event.key == current_text.charAt(0).toLowerCase()) {
+                    blind_so_far += current_text.charAt(0)
+                    current_text = current_text.substring(1)
+                    current_char += 1
+                    document.getElementById("latin-text").textContent = blind_so_far
+                }
+                else if (event.key == " " && irrelevant.includes(current_text.charAt(0))) {
+                    if (current_text.charAt(0) == " ") {
+                        blind_so_far += " "
+                    }
+                    else {
+                        blind_so_far += current_text.charAt(0)
+                    }
+                    if (current_text.charAt(1) == " ") {
+                        blind_so_far += " "
+                    }
+                    else {
+                        blind_so_far += current_text.charAt(0)
+                    }
+                    current_text = current_text.substring(2)
+                    current_char += 2
+                    document.getElementById("latin-text").textContent = blind_so_far
+                }
+            }
+            else {
+                if (event.key == current_text.charAt(0)) {
+                    current_text = current_text.substring(1)
+                    document.getElementById("latin-text").textContent = current_text
+                    current_char += 1
+                }
+                else if (event.key == current_text.charAt(0).toLowerCase()) {
+                    current_text = current_text.substring(1)
+                    document.getElementById("latin-text").textContent = current_text
+                    current_char += 1
+                }
+                else if (event.key == " " && irrelevant.includes(current_text.charAt(0))) {
+                    current_text = current_text.substring(2)
+                    document.getElementById("latin-text").textContent = current_text
+                    current_char += 2
+                }
+            }
+        });
+    </script>
+{% endblock %}
